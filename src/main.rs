@@ -7,7 +7,13 @@ use axum::{
     http::StatusCode,
     routing::{get, post},
     Extension, Json, Router
-}
+};
+
+use std::collections::HashMap;
+use tower_http::cors::CorsLayer;
+use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
+
+use aws_sdk_s3 as s3;
 
 fn main() {
     println!("Hello, world!");
