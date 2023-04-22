@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 aws-config = "0.55.1"
 aws-sdk-s3 = "0.26.0"
+aws-sdk-sqs = "0.26.0"
 axum = { version = "0.6.16", features = ["multipart"] }
 chrono = { version = "0.4.24", features = ["serde"] }
 dotenv = "0.15.0"

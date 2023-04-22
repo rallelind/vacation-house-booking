@@ -38,7 +38,8 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
-        .route("/upload", post(upload_image))
+        .route("/file/upload", post(upload_image))
+        .route("/file", get(get_image))
         .layer(cors_layer)
         .layer(Extension(aws_s3_client));
 
