@@ -7,12 +7,13 @@ use tower_http::cors::CorsLayer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use dotenv::dotenv;
 
+use aws_sdk_s3 as s3;
+use aws_sdk_sqs as sqs;
+
 mod queue;
 mod controllers;
-use controllers::files::{upload_file::upload_file, get_file::get_file};
 
-use aws_sdk_s3 as s3;
-use s3::Client;
+use controllers::files::{upload_file::upload_file, get_file::get_file};
 
 #[tokio::main]
 async fn main() {
@@ -30,14 +31,16 @@ async fn main() {
 
     let aws_configuration = aws_config::load_from_env().await;
 
-    let aws_s3_client = Client::new(&aws_configuration);
+    let aws_s3_client = s3::Client::new(&aws_configuration);
+    let aws_sqs_client = sqs::Client::new(&aws_configuration);
 
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
         .route("/file/upload", post(upload_file))
         .route("/file", get(get_file))
         .layer(cors_layer)
-        .layer(Extension(aws_s3_client));
+        .layer(Extension(aws_s3_client))
+        .layer(Extension(aws_sqs_client));
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("starting server on port: {}", addr.port());

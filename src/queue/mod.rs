@@ -1,6 +1,5 @@
-pub mod receive;
-pub mod send;
+pub mod queue;
 
-pub use receive::receive;
-pub use send::send;
+pub use queue::receive;
+pub use queue::send;
 
