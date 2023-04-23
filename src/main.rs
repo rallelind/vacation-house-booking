@@ -13,7 +13,7 @@ use aws_sdk_sqs as sqs;
 mod queue;
 mod controllers;
 
-use controllers::files::{upload_file::upload_file, get_file::get_file};
+use controllers::{files::{upload_file::upload_file, get_file::get_file}, smart_docu::create_smart_docu::create_smart_docu};
 
 #[tokio::main]
 async fn main() {
@@ -38,6 +38,7 @@ async fn main() {
         .route("/", get(|| async move { "welcome to image upload api" }))
         .route("/file/upload", post(upload_file))
         .route("/file", get(get_file))
+        .route("/smartdocu", post(create_smart_docu))
         .layer(cors_layer)
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_sqs_client));

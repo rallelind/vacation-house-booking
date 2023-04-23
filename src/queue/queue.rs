@@ -13,9 +13,6 @@ pub async fn send(client: &Client, queue_url: &String, message: &SQSMessage) -> 
         .send_message()
         .queue_url(queue_url)
         .message_body(&message.body)
-        .message_group_id(&message.group)
-        // If the queue is FIFO, you need to set .message_deduplication_id
-        // or configure the queue for ContentBasedDeduplication.
         .send()
         .await?;
 

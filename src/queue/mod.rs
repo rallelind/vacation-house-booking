@@ -1,5 +1,4 @@
 pub mod queue;
 
-pub use queue::receive;
-pub use queue::send;
+pub use queue::{receive, send, SQSMessage};
 
