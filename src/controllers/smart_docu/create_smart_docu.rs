@@ -1,18 +1,25 @@
 use aws_sdk_sqs::Client;
-use axum::{http::StatusCode, Extension, Json};
+use axum::{extract::Json, http::StatusCode, Extension};
+use serde::Deserialize;
 
 use crate::queue::{send, SQSMessage};
 
+#[derive(Deserialize)]
+pub struct SmartDocuBody {
+    file_path: String,
+}
+
 pub async fn create_smart_docu(
     Extension(queue_client): Extension<Client>,
+    Json(payload): Json<SmartDocuBody>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
     let queue_url = std::env::var("AWS_SQS_URL").expect("aws sqs url should be provided");
 
     let message = &SQSMessage {
-        body: "hello world".to_owned(),
+        body: payload.file_path.to_owned(),
         group: "ocr_service".to_owned(),
     };
-    
+
     send(&queue_client, &queue_url, message)
         .await
         .map_err(|err| {

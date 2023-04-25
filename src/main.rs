@@ -1,6 +1,6 @@
 use axum::{
     routing::{get, post},
-    Extension, Router,
+    Extension, Router
 };
 
 use tower_http::cors::CorsLayer;
