@@ -2,7 +2,6 @@ use axum::{
     routing::{get, post},
     Extension, Router
 };
-
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use dotenv::dotenv;
@@ -36,9 +35,11 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
-        .route("/file/upload", post(upload_file))
         .route("/file", get(get_file))
+        .route("/file/upload", post(upload_file))
         .route("/smartdocu", post(create_smart_docu))
+        .route("/smartdocu", get(|| async move { "get smart documents status by SSE" }))
+        .route("/smartdocu/:id/processed", post(|| async move { "finish process of document from OCR service" }))
         .layer(cors_layer)
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_sqs_client));
