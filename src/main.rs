@@ -11,6 +11,7 @@ use aws_sdk_sqs as sqs;
 
 mod queue;
 mod controllers;
+mod models;
 
 use controllers::{files::{upload_file::upload_file, get_file::get_file}, smart_docu::create_smart_docu::create_smart_docu};
 
