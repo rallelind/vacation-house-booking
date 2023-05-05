@@ -1,9 +1,7 @@
-use aws_sdk_sqs::Client;
 use axum::{extract::Json, http::StatusCode, Extension};
+use aws_sdk_textract::{Client, types::{Document, S3Object}};
 use serde::Deserialize;
 use serde_json::Value;
-
-use crate::queue::{send, SQSMessage};
 
 #[derive(Deserialize)]
 pub struct SmartDocuBody {
@@ -11,25 +9,25 @@ pub struct SmartDocuBody {
 }
 
 pub async fn create_smart_docu(
-    Extension(queue_client): Extension<Client>,
+    Extension(textract_client): Extension<Client>,
     Json(payload): Json<SmartDocuBody>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let queue_url = std::env::var("AWS_SQS_URL").expect("aws sqs url should be provided");
 
-    let message = &SQSMessage {
-        body: payload.file_path.to_owned(),
-        group: "ocr_service".to_owned(),
-    };
+    let s3_object = S3Object::builder()
+        .bucket("learningio")
+        .name(payload.file_path)
+        .build();
 
-    send(&queue_client, &queue_url, message)
+    let res = textract_client
+        .detect_document_text()
+        .document(Document::builder().s3_object(s3_object).build())
+        .send()
         .await
-        .map_err(|err| {
-            dbg!(err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({"error": "an error occured during document processing"})),
-            )
-        })?;
+        .expect("error finding file");
+
+    for text in res.blocks().expect("error reading block") {
+        println!("{:?}", text.clone());
+    }
 
     Ok(Json(
         serde_json::json!({"success": "processing document now, we will notify when document has been processed"}),

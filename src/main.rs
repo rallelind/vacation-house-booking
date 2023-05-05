@@ -8,6 +8,7 @@ use dotenv::dotenv;
 
 use aws_sdk_s3 as s3;
 use aws_sdk_sqs as sqs;
+use aws_sdk_textract as textract;
 
 mod queue;
 mod controllers;
@@ -33,6 +34,7 @@ async fn main() {
 
     let aws_s3_client = s3::Client::new(&aws_configuration);
     let aws_sqs_client = sqs::Client::new(&aws_configuration);
+    let aws_textract_client = textract::Client::new(&aws_configuration);
 
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
@@ -40,9 +42,9 @@ async fn main() {
         .route("/file/upload", post(upload_file))
         .route("/smartdocu", post(create_smart_docu))
         .route("/smartdocu", get(|| async move { "get smart documents status by SSE" }))
-        .route("/smartdocu/:id/processed", post(|| async move { "finish process of document from OCR service" }))
         .layer(cors_layer)
         .layer(Extension(aws_s3_client))
+        .layer(Extension(aws_textract_client))
         .layer(Extension(aws_sqs_client));
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
