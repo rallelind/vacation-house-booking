@@ -1,6 +1,6 @@
 use axum::{
     routing::{get, post},
-    Extension, Router
+    Extension, Router, middleware
 };
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
@@ -46,7 +46,8 @@ async fn main() {
         .layer(cors_layer)
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_textract_client))
-        .layer(Extension(aws_sqs_client));
+        .layer(Extension(aws_sqs_client))
+        .layer(middleware::f);
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("starting server on port: {}", addr.port());

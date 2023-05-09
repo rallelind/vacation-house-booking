@@ -1256,6 +1256,8 @@ dependencies = [
  "jsonwebtoken",
  "mongodb",
  "pbkdf2 0.12.1",
+ "rand_chacha",
+ "rand_core",
  "serde",
  "serde_json",
  "tokio",

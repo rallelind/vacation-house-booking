@@ -10,6 +10,7 @@ pub enum AppError {
     InternalServerError,
     UserDoesNotExist,
     UserAlreadyExist,
+    PasswordMismatch,
 }
 
 impl IntoResponse for AppError {
@@ -22,6 +23,7 @@ impl IntoResponse for AppError {
             Self::InvalidToken => (StatusCode::BAD_REQUEST, "invalid token"),
             Self::WrongCredential => (StatusCode::BAD_REQUEST, "wrong credentials provided"),
             Self::MissingCredential => (StatusCode::BAD_REQUEST, "missing credentials"),
+            Self::PasswordMismatch => (StatusCode::BAD_REQUEST, "the passwords did not match"),
             Self::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "error creating token"),
             Self::UserAlreadyExist => (StatusCode::UNAUTHORIZED, "user already exists"),
             Self::UserDoesNotExist => (StatusCode::UNAUTHORIZED, "user does not exist"),
