@@ -1,6 +1,8 @@
+use std::error::Error;
+
 use serde::{Deserialize, Serialize};
 use jsonwebtoken::{EncodingKey, DecodingKey};
-use mongodb::bson::oid::ObjectId;
+use mongodb::{bson::oid::ObjectId, results::InsertOneResult};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct User {
@@ -12,21 +14,8 @@ pub struct User {
     pub name: String
 }
 
-pub struct Claims {
-    pub email: String,
-    pub exp: u64,
-}
+impl User {
+    pub fn create_user(user_data) -> Result<InsertOneResult, > {
 
-pub struct Keys {
-    pub encoding: EncodingKey,
-    pub decoding: DecodingKey,
-}
-
-impl Keys {
-    pub fn new(secret: &[u8]) -> Self {
-        Self {
-            encoding: EncodingKey::from_secret(secret),
-            decoding: DecodingKey::from_secret(secret),
-        }
     }
 }

@@ -1,6 +1,8 @@
-use axum::{extract::Json, http::StatusCode};
+use axum::{extract::Json};
 use serde::Deserialize;
 use serde_json::Value;
+
+use crate::errors::AppError;
 
 #[derive(Deserialize)]
 pub struct RegisterBody {
@@ -9,6 +11,6 @@ pub struct RegisterBody {
     confirm_password: String,
 }
 
-pub async fn register_user(Json(payload): Json<RegisterBody>) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    
+pub async fn register_user(Json(payload): Json<RegisterBody>) -> Result<Json<Value>, AppError> {
+
 }

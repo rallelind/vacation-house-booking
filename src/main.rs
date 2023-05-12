@@ -1,7 +1,12 @@
+use std::sync::{Arc, Mutex};
+
 use axum::{
     routing::{get, post},
     Extension, Router, middleware
 };
+use rand_chacha::ChaCha8Rng;
+use rand_core::{OsRng, RngCore};
+use rand_core::SeedableRng;
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use dotenv::dotenv;
@@ -37,6 +42,8 @@ async fn main() {
     let aws_sqs_client = sqs::Client::new(&aws_configuration);
     let aws_textract_client = textract::Client::new(&aws_configuration);
 
+    let random = ChaCha8Rng::seed_from_u64(OsRng.next_u64());
+
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
         .route("/file", get(get_file))
@@ -46,8 +53,7 @@ async fn main() {
         .layer(cors_layer)
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_textract_client))
-        .layer(Extension(aws_sqs_client))
-        .layer(middleware::f);
+        .layer(Extension(aws_sqs_client));
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("starting server on port: {}", addr.port());
