@@ -22,6 +22,7 @@ mod repository;
 use controllers::{
     files::{get_file::get_file, upload_file::upload_file},
     smart_docu::create_smart_docu::create_smart_docu,
+    users::register::register_user,
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -54,6 +55,7 @@ async fn main() {
         .route("/file", get(get_file))
         .route("/file/upload", post(upload_file))
         .route("/smartdocu", post(create_smart_docu))
+        .route("/user", post(register_user))
         .layer(cors_layer)
         .layer(Extension(db))
         .layer(Extension(aws_s3_client))
