@@ -2,7 +2,6 @@ use crate::repository::mongodb_repo::MongoRepo;
 use mongodb::{
     bson::{extjson::de::Error, oid::ObjectId},
     results::InsertOneResult,
-    Collection,
 };
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize)]

@@ -1687,7 +1687,6 @@ dependencies = [
  "rustls",
  "rustls-pemfile",
  "serde",
- "serde_bytes",
  "serde_with",
  "sha-1",
  "sha2",

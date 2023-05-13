@@ -13,6 +13,7 @@ pub struct RegisterBody {
     password: String,
     confirm_password: String,
     email: String,
+    avatar: String,
 }
 
 pub async fn register_user(
@@ -20,7 +21,7 @@ pub async fn register_user(
     Extension(db): Extension<MongoRepo>,
 ) -> Result<Json<Value>, AppError> {
 
-    let RegisterBody { username, password, confirm_password, email } = payload;
+    let RegisterBody { username, password, confirm_password, email, avatar } = payload;
 
     if confirm_password != password {
         return Err(AppError::PasswordMismatch);
@@ -31,13 +32,13 @@ pub async fn register_user(
         name: username.clone(),
         password: password.clone(),
         email: email.clone(),
-        avatar: None
+        avatar: avatar.clone()
     };
 
     let registered_user = db.create_user(user_data);
-
+    
     match registered_user {
-        Ok(user) => Ok(user),
+        Ok(user) => Ok(Json(serde_json::json!(user))),
         Err(_) => Err(AppError::InternalServerError)
     }
 

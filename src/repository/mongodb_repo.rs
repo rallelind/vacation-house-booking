@@ -2,8 +2,6 @@ use crate::models::users::User;
 use std::env::var;
 
 use mongodb::{
-    bson::{doc, extjson::de::Error, oid::ObjectId},
-    results::{DeleteResult, InsertOneResult, UpdateResult},
     sync::{Client, Collection},
 };
 pub struct MongoRepo {
@@ -18,7 +16,7 @@ impl MongoRepo {
         let client = Client::with_uri_str(mongo_connection_string).expect("error connection to client");
 
         let db = client.database("house_booking");
-        let users_collection: Collection<User> = db.collection("Users");
+        let user_collection: Collection<User> = db.collection("Users");
         MongoRepo { user_collection }
     }
 }
