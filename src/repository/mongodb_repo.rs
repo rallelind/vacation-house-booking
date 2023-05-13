@@ -7,7 +7,7 @@ use mongodb::{
     sync::{Client, Collection},
 };
 pub struct MongoRepo {
-    user_collection: Collection<User>,
+    pub user_collection: Collection<User>,
 }
 
 impl MongoRepo {

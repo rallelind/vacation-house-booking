@@ -1,26 +1,29 @@
-
 use axum::{
     routing::{get, post},
-    Extension, Router
+    Extension, Router,
 };
+use dotenv::dotenv;
 use rand_chacha::ChaCha8Rng;
-use rand_core::{OsRng, RngCore};
 use rand_core::SeedableRng;
+use rand_core::{OsRng, RngCore};
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
-use dotenv::dotenv;
 
 use aws_sdk_s3 as s3;
 use aws_sdk_sqs as sqs;
 use aws_sdk_textract as textract;
 
-mod queue;
 mod controllers;
-mod models;
 mod errors;
+mod models;
+mod queue;
 mod repository;
 
-use controllers::{files::{upload_file::upload_file, get_file::get_file}, smart_docu::create_smart_docu::create_smart_docu};
+use controllers::{
+    files::{get_file::get_file, upload_file::upload_file},
+    smart_docu::create_smart_docu::create_smart_docu,
+};
+use repository::mongodb_repo::MongoRepo;
 
 #[tokio::main]
 async fn main() {
@@ -42,6 +45,8 @@ async fn main() {
     let aws_sqs_client = sqs::Client::new(&aws_configuration);
     let aws_textract_client = textract::Client::new(&aws_configuration);
 
+    let db = MongoRepo::init();
+
     let random = ChaCha8Rng::seed_from_u64(OsRng.next_u64());
 
     let app = Router::new()
@@ -49,8 +54,8 @@ async fn main() {
         .route("/file", get(get_file))
         .route("/file/upload", post(upload_file))
         .route("/smartdocu", post(create_smart_docu))
-        .route("/smartdocu", get(|| async move { "get smart documents status by SSE" }))
         .layer(cors_layer)
+        .layer(Extension(db))
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_textract_client))
         .layer(Extension(aws_sqs_client));
