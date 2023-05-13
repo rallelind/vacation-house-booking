@@ -1,8 +1,7 @@
-use std::sync::{Arc, Mutex};
 
 use axum::{
     routing::{get, post},
-    Extension, Router, middleware
+    Extension, Router
 };
 use rand_chacha::ChaCha8Rng;
 use rand_core::{OsRng, RngCore};
@@ -19,6 +18,7 @@ mod queue;
 mod controllers;
 mod models;
 mod errors;
+mod repository;
 
 use controllers::{files::{upload_file::upload_file, get_file::get_file}, smart_docu::create_smart_docu::create_smart_docu};
 

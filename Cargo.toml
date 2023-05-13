@@ -14,7 +14,7 @@ axum = { version = "0.6.16", features = ["multipart"] }
 chrono = { version = "0.4.24", features = ["serde"] }
 dotenv = "0.15.0"
 jsonwebtoken = "8.3.0"
-mongodb = "2.5.0"
+mongodb = { versioN = "2.5.0", features = ["sync"] }
 pbkdf2 = "0.12.1"
 rand_chacha = "0.3.1"
 rand_core = "0.6.4"

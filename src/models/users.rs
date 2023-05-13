@@ -1,7 +1,5 @@
-use std::error::Error;
 
 use serde::{Deserialize, Serialize};
-use jsonwebtoken::{EncodingKey, DecodingKey};
 use mongodb::{bson::oid::ObjectId, results::InsertOneResult};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -15,7 +13,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn create_user(user_data) -> Result<InsertOneResult, > {
+    pub fn create_user(user_data: User) -> Result<InsertOneResult> {
 
     }
 }
