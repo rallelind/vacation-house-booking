@@ -1,3 +1,4 @@
+
 use axum::{
     routing::{get, post},
     Extension, Router,
@@ -46,6 +47,7 @@ async fn main() {
     let aws_sqs_client = sqs::Client::new(&aws_configuration);
     let aws_textract_client = textract::Client::new(&aws_configuration);
 
+    
     let db = MongoRepo::init();
 
     let random = ChaCha8Rng::seed_from_u64(OsRng.next_u64());

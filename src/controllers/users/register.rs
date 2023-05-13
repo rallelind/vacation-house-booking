@@ -16,9 +16,10 @@ pub struct RegisterBody {
     avatar: String,
 }
 
+#[axum_macros::debug_handler]
 pub async fn register_user(
-    Json(payload): Json<RegisterBody>,
     Extension(db): Extension<MongoRepo>,
+    Json(payload): Json<RegisterBody>,
 ) -> Result<Json<Value>, AppError> {
 
     let RegisterBody { username, password, confirm_password, email, avatar } = payload;
