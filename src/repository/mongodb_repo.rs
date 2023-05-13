@@ -1,10 +1,18 @@
-use crate::models::users::User;
+use crate::models::{
+    family::Family,
+    house::{Booking, BookingPost, House},
+    users::User,
+};
 use std::env::var;
 
 use mongodb::sync::{Client, Collection};
 #[derive(Clone, Debug)]
 pub struct MongoRepo {
     pub user_collection: Collection<User>,
+    pub house_collection: Collection<House>,
+    pub booking_collection: Collection<Booking>,
+    pub booking_post_collection: Collection<BookingPost>,
+    pub family_collection: Collection<Family>,
 }
 
 impl MongoRepo {
@@ -17,6 +25,17 @@ impl MongoRepo {
 
         let db = client.database("house_booking");
         let user_collection: Collection<User> = db.collection("Users");
-        MongoRepo { user_collection }
+        let house_collection: Collection<House> = db.collection("House");
+        let booking_collection: Collection<Booking> = db.collection("Booking");
+        let booking_post_collection: Collection<BookingPost> = db.collection("BookingPost");
+        let family_collection: Collection<Family> = db.collection("Family");
+
+        MongoRepo {
+            user_collection,
+            house_collection,
+            booking_collection,
+            booking_post_collection,
+            family_collection,
+        }
     }
 }

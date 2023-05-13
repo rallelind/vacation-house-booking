@@ -6,6 +6,7 @@ use mongodb::{
 };
 use serde::{Deserialize, Serialize};
 use crate::controllers::users::update_user::PatchUser;
+use crate::models::house::House;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct User {
@@ -15,6 +16,7 @@ pub struct User {
     pub password: String,
     pub avatar: String,
     pub name: String,
+    pub house: Option<House>
 }
 
 impl MongoRepo {

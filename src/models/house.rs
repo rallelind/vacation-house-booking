@@ -18,11 +18,11 @@ pub struct Booking {
     pub id: Option<ObjectId>,
     pub start_date: DateTime,
     pub end_date: DateTime,
-    pub posts: Option<Vec<Post>>
+    pub posts: Option<Vec<BookingPost>>
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Post {
+pub struct BookingPost {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub pictures: Vec<String>,
