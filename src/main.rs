@@ -1,6 +1,6 @@
 
 use axum::{
-    routing::{get, post},
+    routing::{get, post, patch},
     Extension, Router,
 };
 use dotenv::dotenv;
@@ -23,7 +23,7 @@ mod repository;
 use controllers::{
     files::{get_file::get_file, upload_file::upload_file},
     smart_docu::create_smart_docu::create_smart_docu,
-    users::register::register_user,
+    users::{register::register_user, update_user::update_user},
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -58,6 +58,7 @@ async fn main() {
         .route("/file/upload", post(upload_file))
         .route("/smartdocu", post(create_smart_docu))
         .route("/user", post(register_user))
+        .route("/user/:user_id", patch(update_user))
         .layer(cors_layer)
         .layer(Extension(db))
         .layer(Extension(aws_s3_client))
