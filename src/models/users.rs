@@ -3,7 +3,7 @@ use crate::controllers::users::update_user::PatchUser;
 use crate::models::{family::Family, house::House};
 use crate::repository::mongodb_repo::MongoRepo;
 use mongodb::{
-    bson::{doc, oid::ObjectId},
+    bson::{doc, oid::ObjectId, to_bson},
     error::Error,
     results::{InsertOneResult, UpdateResult},
 };
@@ -17,7 +17,9 @@ pub struct User {
     pub password: String,
     pub avatar: String,
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub house: Option<House>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub family: Option<Family>,
 }
 
@@ -60,10 +62,10 @@ impl MongoRepo {
             update_doc.insert("avatar", avatar);
         }
 
-        if let Some(family) = avatar {
-            update_doc.insert("family", family);
+        if let Some(family) = family {
+            update_doc.insert("family", to_bson(&family).unwrap());
         }
-
+        
         let query = doc! { "_id": user_object_id };
         let update = doc! { "$set": update_doc };
 

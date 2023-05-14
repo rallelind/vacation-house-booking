@@ -24,6 +24,7 @@ use controllers::{
     files::{get_file::get_file, upload_file::upload_file},
     smart_docu::create_smart_docu::create_smart_docu,
     users::{register::register_user, update_user::update_user},
+    family::{create_family::create_family}
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -59,6 +60,7 @@ async fn main() {
         .route("/smartdocu", post(create_smart_docu))
         .route("/user", post(register_user))
         .route("/user/:user_id", patch(update_user))
+        .route("/family", post(create_family))
         .layer(cors_layer)
         .layer(Extension(db))
         .layer(Extension(aws_s3_client))
