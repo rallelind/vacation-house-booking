@@ -2,13 +2,14 @@ use axum::{Extension, Json, extract::Path};
 use serde_json::Value;
 use serde::Deserialize;
 
-use crate::{errors::AppError, repository::mongodb_repo::MongoRepo};
+use crate::{errors::AppError, repository::mongodb_repo::MongoRepo, models::family::Family};
 
 #[derive(Deserialize)]
 pub struct PatchUser {
     pub email: Option<String>,
     pub name: Option<String>,
     pub avatar: Option<String>,
+    pub family: Option<Family>
 }
 
 pub async fn update_user(

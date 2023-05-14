@@ -35,6 +35,7 @@ pub async fn register_user(
         email: email.clone(),
         avatar: avatar.clone(),
         house: None,
+        family: None,
     };
 
     let registered_user = db.create_user(user_data);

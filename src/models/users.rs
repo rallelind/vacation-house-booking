@@ -1,12 +1,13 @@
+use crate::controllers::family;
+use crate::controllers::users::update_user::PatchUser;
+use crate::models::{family::Family, house::House};
 use crate::repository::mongodb_repo::MongoRepo;
 use mongodb::{
-    bson::{oid::ObjectId, doc},
+    bson::{doc, oid::ObjectId},
+    error::Error,
     results::{InsertOneResult, UpdateResult},
-    error::Error
 };
 use serde::{Deserialize, Serialize};
-use crate::controllers::users::update_user::PatchUser;
-use crate::models::house::House;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct User {
@@ -16,7 +17,8 @@ pub struct User {
     pub password: String,
     pub avatar: String,
     pub name: String,
-    pub house: Option<House>
+    pub house: Option<House>,
+    pub family: Option<Family>,
 }
 
 impl MongoRepo {
@@ -26,16 +28,25 @@ impl MongoRepo {
             .insert_one(user_data, None)
             .ok()
             .expect("Error creating user");
-        
+
         Ok(user)
     }
 
-    pub fn update_user_doc(&self, patch_user: PatchUser, user_id: String) -> Result<UpdateResult, Error> {
+    pub fn update_user_doc(
+        &self,
+        patch_user: PatchUser,
+        user_id: String,
+    ) -> Result<UpdateResult, Error> {
         let user_object_id = ObjectId::parse_str(user_id).expect("error reading objectId");
 
-        let PatchUser { email, name, avatar } = patch_user;
-        
-        let mut update_doc = doc!{};
+        let PatchUser {
+            email,
+            name,
+            avatar,
+            family,
+        } = patch_user;
+
+        let mut update_doc = doc! {};
 
         if let Some(email) = email {
             update_doc.insert("email", email);
@@ -49,6 +60,10 @@ impl MongoRepo {
             update_doc.insert("avatar", avatar);
         }
 
+        if let Some(family) = avatar {
+            update_doc.insert("family", family);
+        }
+
         let query = doc! { "_id": user_object_id };
         let update = doc! { "$set": update_doc };
 
@@ -56,7 +71,7 @@ impl MongoRepo {
 
         match updated_user {
             Ok(user) => Ok(user),
-            Err(_) => Err(Error::custom("error updating the user"))
+            Err(_) => Err(Error::custom("error updating the user")),
         }
     }
 }
