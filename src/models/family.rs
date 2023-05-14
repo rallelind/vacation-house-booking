@@ -24,10 +24,6 @@ impl MongoRepo {
                 avatar: None
             };
 
-            if member.id.is_none() {
-                return Err(Error::custom("no user id provided"))
-            }
-
             let member_id_string = match member.id {
                 Some(id) => id.to_hex(),
                 _ => "provide a id".to_string()

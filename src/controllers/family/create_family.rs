@@ -15,6 +15,12 @@ pub async fn create_family(Extension(db): Extension<MongoRepo>, Json(family_payl
 
     let FamilyPayload { family_members, family_name } = family_payload;
 
+    for member in &family_members {
+        if member.id.is_none() {
+            return Err(AppError::MissingUserIdForProvidedUsers);
+        }
+    }
+
     let new_family = Family {
         famile_name: family_name,
         members: family_members,
