@@ -11,6 +11,7 @@ pub enum AppError {
     UserDoesNotExist,
     UserAlreadyExist,
     PasswordMismatch,
+    MissingUserIdForProvidedUsers,
 }
 
 impl IntoResponse for AppError {
@@ -27,6 +28,7 @@ impl IntoResponse for AppError {
             Self::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "error creating token"),
             Self::UserAlreadyExist => (StatusCode::UNAUTHORIZED, "user already exists"),
             Self::UserDoesNotExist => (StatusCode::UNAUTHORIZED, "user does not exist"),
+            Self::MissingUserIdForProvidedUsers => (StatusCode::BAD_REQUEST, "")
         };
         (status, Json(json!({ "error": err_msg }))).into_response()
     }

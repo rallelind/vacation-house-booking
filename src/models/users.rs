@@ -16,7 +16,8 @@ pub struct User {
     pub email: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub password: Option<String>,
-    pub avatar: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar: Option<String>,
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub house: Option<House>,
@@ -41,8 +42,12 @@ impl MongoRepo {
         user_id: String,
     ) -> Result<UpdateResult, Error> {
 
-        //TODO: better error handling
-        let user_object_id = ObjectId::parse_str(user_id).expect("error reading objectId");
+        let converted_object = ObjectId::parse_str(user_id);
+
+        let user_object_id = match converted_object {
+            Ok(user_object) => Ok(user_object),
+            Err(e) => Err(e)
+        };
 
         let PatchUser {
             email,
@@ -68,8 +73,8 @@ impl MongoRepo {
         if let Some(family) = family {
             update_doc.insert("family", to_bson(&family).unwrap());
         }
-        
-        let query = doc! { "_id": user_object_id };
+
+        let query = doc! { "_id": user_object_id.ok() };
         let update = doc! { "$set": update_doc };
 
         let updated_user = self.user_collection.update_one(query, update, None);

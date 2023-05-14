@@ -33,7 +33,7 @@ pub async fn register_user(
         name: username.clone(),
         password: Some(password.clone()),
         email: email.clone(),
-        avatar: avatar.clone(),
+        avatar: Some(avatar.clone()),
         house: None,
         family: None,
     };
