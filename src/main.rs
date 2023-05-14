@@ -25,7 +25,8 @@ use controllers::{
     smart_docu::create_smart_docu::create_smart_docu,
     users::{register::register_user, update_user::update_user},
     family::{create_family::create_family},
-    house::create_house::create_house
+    house::create_house::create_house,
+    bookings::{create_booking::create_booking, create_booking_post::create_booking_post}
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -63,6 +64,8 @@ async fn main() {
         .route("/user/:user_id", patch(update_user))
         .route("/family", post(create_family))
         .route("/house", post(create_house))
+        .route("/house/booking", post(create_booking))
+        .route("/house/booking/post", post(create_booking_post))
         .layer(cors_layer)
         .layer(Extension(db))
         .layer(Extension(aws_s3_client))
