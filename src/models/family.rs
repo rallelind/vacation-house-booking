@@ -26,8 +26,10 @@ impl MongoRepo {
                 avatar: None
             };
 
-            let member_id_string = serde_json::to_string(&member.id)?;
+            println!("{:?}", member);
 
+            let member_id_string = member.id.unwrap().to_hex();
+            println!("{}", member_id_string);
             self.update_user_doc(patch_user, member_id_string).ok();
         }
 

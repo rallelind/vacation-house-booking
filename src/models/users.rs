@@ -14,7 +14,8 @@ pub struct User {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub email: String,
-    pub password: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub password: Option<String>,
     pub avatar: String,
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -39,6 +40,8 @@ impl MongoRepo {
         patch_user: PatchUser,
         user_id: String,
     ) -> Result<UpdateResult, Error> {
+
+        //TODO: better error handling
         let user_object_id = ObjectId::parse_str(user_id).expect("error reading objectId");
 
         let PatchUser {

@@ -31,7 +31,7 @@ pub async fn register_user(
     let user_data = User {
         id: None,
         name: username.clone(),
-        password: password.clone(),
+        password: Some(password.clone()),
         email: email.clone(),
         avatar: avatar.clone(),
         house: None,
