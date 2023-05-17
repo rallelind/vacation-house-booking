@@ -19,6 +19,7 @@ mod errors;
 mod models;
 mod queue;
 mod repository;
+mod middleware;
 
 use controllers::{
     files::{get_file::get_file, upload_file::upload_file},

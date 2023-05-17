@@ -34,6 +34,7 @@ pub struct BookingPost {
     pub id: Option<ObjectId>,
     pub pictures: Vec<String>,
     pub description: String,
+    pub booking: Booking,
 }
 
 impl MongoRepo {
