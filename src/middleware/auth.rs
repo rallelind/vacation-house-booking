@@ -1,11 +1,14 @@
 use std::str::FromStr;
 
-
-use axum::{response::{IntoResponse, Response}, http::Request, middleware::Next};
+use axum::{
+    http::Request,
+    middleware::Next,
+    response::{IntoResponse, Response},
+};
 
 use mongodb::bson::oid::ObjectId;
 
-use crate::{Random, models::users::User, repository::mongodb_repo::MongoRepo};
+use crate::{models::users::User, repository::mongodb_repo::MongoRepo, Random};
 
 const USER_COOKIE_NAME: &str = "user_token";
 
@@ -67,11 +70,7 @@ pub fn new_session(database: MongoRepo, random: Random, user_id: ObjectId) -> Se
     session_token
 }
 
-pub async fn auth<B>(
-    mut req: Request<B>,
-    next: Next<B>,
-    database: MongoRepo,
-) -> Response {
+pub async fn auth<B>(mut req: Request<B>, next: Next<B>, database: MongoRepo) -> Response {
     let session_token = req
         .headers()
         .get_all("Cookie")
