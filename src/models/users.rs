@@ -1,4 +1,3 @@
-use crate::controllers::family;
 use crate::controllers::users::update_user::PatchUser;
 use crate::models::{family::Family, house::House};
 use crate::repository::mongodb_repo::MongoRepo;
@@ -84,4 +83,15 @@ impl MongoRepo {
             Err(_) => Err(Error::custom("error updating the user")),
         }
     }
+
+    pub fn get_user(&self, email: String) -> Result<Option<User>, Error> {
+        let filter = doc! { "email": email };
+
+        let user = self.user_collection.find_one(filter, None);
+
+        match user {
+            Ok(doc) => Ok(doc),
+            Err(_) => Err(Error::custom("error getting user"))
+        }
+    } 
 }

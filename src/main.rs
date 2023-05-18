@@ -31,6 +31,8 @@ use controllers::{
 };
 use repository::mongodb_repo::MongoRepo;
 
+pub type Random = Arc<Mutex<ChaCha8Rng>>;
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();

@@ -2,6 +2,7 @@ use crate::models::{
     family::Family,
     house::{Booking, BookingPost, House},
     users::User,
+    session::Session
 };
 use std::env::var;
 
@@ -13,6 +14,7 @@ pub struct MongoRepo {
     pub booking_collection: Collection<Booking>,
     pub booking_post_collection: Collection<BookingPost>,
     pub family_collection: Collection<Family>,
+    pub session_collection: Collection<Session>
 }
 
 impl MongoRepo {
@@ -29,6 +31,7 @@ impl MongoRepo {
         let booking_collection: Collection<Booking> = db.collection("Booking");
         let booking_post_collection: Collection<BookingPost> = db.collection("BookingPost");
         let family_collection: Collection<Family> = db.collection("Family");
+        let session_collection: Collection<Session> = db.collection("Session");
 
         MongoRepo {
             user_collection,
@@ -36,6 +39,7 @@ impl MongoRepo {
             booking_collection,
             booking_post_collection,
             family_collection,
+            session_collection
         }
     }
 }
