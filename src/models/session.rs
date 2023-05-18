@@ -13,6 +13,18 @@ impl MongoRepo {
 
     pub fn create_session(&self, user_id: ObjectId, session_token: Vec<u8>) -> Result<InsertOneResult, Error> {
         // implement create session logic
+
+        let token = Session {
+            session_token,
+            user_id: Some(user_id)
+        };
+
+        let new_session = self.session_collection.insert_one(token, None);
+
+        match new_session {
+            Ok(session) => Ok(session),
+            Err(_) => Err(Error::custom("error creating session"))
+        }
     }
 
 }
