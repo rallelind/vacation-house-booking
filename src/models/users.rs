@@ -40,12 +40,11 @@ impl MongoRepo {
         patch_user: PatchUser,
         user_id: String,
     ) -> Result<UpdateResult, Error> {
-
         let converted_object = ObjectId::parse_str(user_id);
 
         let user_object_id = match converted_object {
             Ok(user_object) => Ok(user_object),
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         };
 
         let PatchUser {
@@ -91,7 +90,7 @@ impl MongoRepo {
 
         match user {
             Ok(doc) => Ok(doc),
-            Err(_) => Err(Error::custom("error getting user"))
+            Err(_) => Err(Error::custom("error getting user")),
         }
-    } 
+    }
 }

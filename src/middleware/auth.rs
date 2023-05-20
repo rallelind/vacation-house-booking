@@ -73,7 +73,7 @@ pub fn new_session(database: MongoRepo, random: Random, user_id: ObjectId) -> Se
     session_token
 }
 
-pub async fn auth<B>(mut req: Request<B>, next: Next<B>, Extension(database): Extension<MongoRepo>) -> Response {
+pub async fn auth<B>(Extension(database): Extension<MongoRepo>, mut req: Request<B>, next: Next<B>) -> Response {
     let session_token = req
         .headers()
         .get_all("Cookie")

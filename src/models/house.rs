@@ -1,6 +1,6 @@
 use crate::{models::family::Family, repository::mongodb_repo::MongoRepo};
 use mongodb::{
-    bson::{oid::ObjectId, DateTime, doc},
+    bson::{doc, oid::ObjectId, DateTime},
     error::Error,
     results::InsertOneResult,
 };
@@ -56,21 +56,21 @@ impl MongoRepo {
         }
     }
 
-    pub fn create_booking_post(&self, new_booking_post: BookingPost) -> Result<InsertOneResult, Error> {
-        let created_booking_post = self.booking_post_collection.insert_one(new_booking_post, None);
-    
+    pub fn create_booking_post(
+        &self,
+        new_booking_post: BookingPost,
+    ) -> Result<InsertOneResult, Error> {
+        let created_booking_post = self
+            .booking_post_collection
+            .insert_one(new_booking_post, None);
+
         match created_booking_post {
             Ok(booking_post) => Ok(booking_post),
-            Err(_) => Err(Error::custom("error creating booking post"))
+            Err(_) => Err(Error::custom("error creating booking post")),
         }
     }
 
-    pub fn booking_exists(
-        &self,
-        start_date: DateTime,
-        end_date: DateTime,
-    ) -> Result<u64, Error> {
-
+    pub fn booking_exists(&self, start_date: DateTime, end_date: DateTime) -> Result<u64, Error> {
         let filter = doc! {
             "$and": [
                 { "start_date": { "$lt": start_date } },
@@ -82,7 +82,7 @@ impl MongoRepo {
 
         match count {
             Ok(counted_documents) => Ok(counted_documents),
-            Err(_) => Err(Error::custom("error counting documents"))
+            Err(_) => Err(Error::custom("error counting documents")),
         }
     }
 }

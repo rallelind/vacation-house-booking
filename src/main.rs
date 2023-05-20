@@ -1,8 +1,8 @@
 use std::sync::{Arc, Mutex};
 
 use axum::{
-    routing::{get, post, patch},
     middleware::from_fn,
+    routing::{get, patch, post},
     Extension, Router,
 };
 use dotenv::dotenv;
@@ -18,18 +18,18 @@ use aws_sdk_textract as textract;
 
 mod controllers;
 mod errors;
+mod middleware;
 mod models;
 mod queue;
 mod repository;
-mod middleware;
 
 use controllers::{
+    bookings::{create_booking::create_booking, create_booking_post::create_booking_post},
+    family::create_family::create_family,
     files::{get_file::get_file, upload_file::upload_file},
+    house::create_house::create_house,
     smart_docu::create_smart_docu::create_smart_docu,
     users::{register::register_user, update_user::update_user},
-    family::{create_family::create_family},
-    house::create_house::create_house,
-    bookings::{create_booking::create_booking, create_booking_post::create_booking_post}
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -57,11 +57,10 @@ async fn main() {
     let aws_sqs_client = sqs::Client::new(&aws_configuration);
     let aws_textract_client = textract::Client::new(&aws_configuration);
 
-    
     let db = MongoRepo::init();
 
     let random = ChaCha8Rng::seed_from_u64(OsRng.next_u64());
-    
+
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
         .route("/file", get(get_file))
@@ -75,6 +74,7 @@ async fn main() {
         .route("/house/booking/post", post(create_booking_post))
         .layer(cors_layer)
         .layer(Extension(db))
+        .layer(from_fn(auth))
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_textract_client))
         .layer(Extension(aws_sqs_client));
