@@ -14,6 +14,7 @@ use crate::{models::users::User, repository::mongodb_repo::MongoRepo, Random};
 
 const USER_COOKIE_NAME: &str = "user_token";
 
+#[derive(Clone, Copy)]
 pub struct SessionToken(u128);
 
 impl FromStr for SessionToken {
