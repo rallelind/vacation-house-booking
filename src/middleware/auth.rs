@@ -1,9 +1,11 @@
 use std::str::FromStr;
+use rand_core::RngCore;
 
 use axum::{
     http::Request,
     middleware::Next,
     response::{IntoResponse, Response},
+    Extension
 };
 
 use mongodb::bson::oid::ObjectId;
@@ -70,7 +72,7 @@ pub fn new_session(database: MongoRepo, random: Random, user_id: ObjectId) -> Se
     session_token
 }
 
-pub async fn auth<B>(mut req: Request<B>, next: Next<B>, database: MongoRepo) -> Response {
+pub async fn auth<B>(mut req: Request<B>, next: Next<B>, Extension(database): Extension<MongoRepo>) -> Response {
     let session_token = req
         .headers()
         .get_all("Cookie")

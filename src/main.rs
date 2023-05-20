@@ -1,6 +1,8 @@
+use std::sync::{Arc, Mutex};
 
 use axum::{
     routing::{get, post, patch},
+    middleware::from_fn,
     Extension, Router,
 };
 use dotenv::dotenv;
@@ -31,6 +33,8 @@ use controllers::{
 };
 use repository::mongodb_repo::MongoRepo;
 
+use middleware::auth::auth;
+
 pub type Random = Arc<Mutex<ChaCha8Rng>>;
 
 #[tokio::main]
@@ -57,7 +61,7 @@ async fn main() {
     let db = MongoRepo::init();
 
     let random = ChaCha8Rng::seed_from_u64(OsRng.next_u64());
-
+    
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
         .route("/file", get(get_file))
