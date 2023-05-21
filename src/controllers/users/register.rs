@@ -4,8 +4,8 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::errors::AppError;
-use crate::models::users::User;
 use crate::MongoRepo;
+use crate::models::users::User;
 
 #[derive(Deserialize)]
 pub struct RegisterBody {
@@ -21,14 +21,8 @@ pub async fn register_user(
     Extension(db): Extension<MongoRepo>,
     Json(payload): Json<RegisterBody>,
 ) -> Result<Json<Value>, AppError> {
-    
-    let RegisterBody {
-        username,
-        password,
-        confirm_password,
-        email,
-        avatar,
-    } = payload;
+
+    let RegisterBody { username, password, confirm_password, email, avatar } = payload;
 
     if confirm_password != password {
         return Err(AppError::PasswordMismatch);
@@ -45,9 +39,10 @@ pub async fn register_user(
     };
 
     let registered_user = db.create_user(user_data);
-
+    
     match registered_user {
         Ok(user) => Ok(Json(serde_json::json!(user))),
-        Err(_) => Err(AppError::InternalServerError),
+        Err(_) => Err(AppError::InternalServerError)
     }
+
 }

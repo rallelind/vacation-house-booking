@@ -73,8 +73,8 @@ async fn main() {
         .route("/house/booking", post(create_booking))
         .route("/house/booking/post", post(create_booking_post))
         .layer(cors_layer)
-        .layer(Extension(db))
         .layer(from_fn(auth))
+        .layer(Extension(db))
         .layer(Extension(aws_s3_client))
         .layer(Extension(aws_textract_client))
         .layer(Extension(aws_sqs_client));

@@ -26,13 +26,12 @@ pub struct User {
 
 impl MongoRepo {
     pub fn create_user(&self, user_data: User) -> Result<InsertOneResult, Error> {
-        let user = self
-            .user_collection
-            .insert_one(user_data, None)
-            .ok()
-            .expect("Error creating user");
+        let user = self.user_collection.insert_one(user_data, None);
 
-        Ok(user)
+        match user {
+            Ok(user) => Ok(user),
+            Err(_) => Err(Error::custom("error updating the user")),
+        }
     }
 
     pub fn update_user_doc(
