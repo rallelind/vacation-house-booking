@@ -26,6 +26,11 @@ tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 axum-macros = "0.3.7"
 anyhow = "1.0.71"
 cookie = "0.17.0"
+async-mongodb-session = "3.0.0"
+async-session = "3.0.0"
+axum-extra = { version = "0.7.4", features = ["typed-header"] }
+oauth2 = "4.4.0"
+http = "0.2.9"
 
 [dependencies.mongodb]
 version = "2.5.0"
