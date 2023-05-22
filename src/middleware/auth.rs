@@ -1,4 +1,6 @@
-use async_session::{MemoryStore, Session, SessionStore};
+use async_mongodb_session::MongodbSessionStore;
+use async_session::{Session, SessionStore};
+
 use axum::{
     async_trait,
     extract::{FromRef, FromRequestParts, Query, State},
@@ -15,3 +17,8 @@ use oauth2::{
 };
 use serde::{Deserialize, Serialize};
 use std::env;
+
+pub struct AuthState {
+    store: MongodbSessionStore,
+    client: BasicClient
+}

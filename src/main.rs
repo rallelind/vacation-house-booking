@@ -33,9 +33,8 @@ use controllers::{
 };
 use repository::mongodb_repo::MongoRepo;
 
-use middleware::auth::auth;
+use middleware::auth::{auth, AuthState};
 
-pub type Random = Arc<Mutex<ChaCha8Rng>>;
 
 #[tokio::main]
 async fn main() {
@@ -54,12 +53,12 @@ async fn main() {
     let aws_configuration = aws_config::load_from_env().await;
 
     let aws_s3_client = s3::Client::new(&aws_configuration);
-    let aws_sqs_client = sqs::Client::new(&aws_configuration);
-    let aws_textract_client = textract::Client::new(&aws_configuration);
 
     let db = MongoRepo::init();
 
-    let random = ChaCha8Rng::seed_from_u64(OsRng.next_u64());
+    let auth_state = AuthState {
+        
+    }
 
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
@@ -73,11 +72,8 @@ async fn main() {
         .route("/house/booking", post(create_booking))
         .route("/house/booking/post", post(create_booking_post))
         .layer(cors_layer)
-        .layer(from_fn(auth))
         .layer(Extension(db))
-        .layer(Extension(aws_s3_client))
-        .layer(Extension(aws_textract_client))
-        .layer(Extension(aws_sqs_client));
+        .layer(Extension(aws_s3_client));
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("starting server on port: {}", addr.port());
