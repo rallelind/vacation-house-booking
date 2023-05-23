@@ -1,4 +1,5 @@
-use std::sync::{Arc, Mutex};
+use async_mongodb_session::*;
+use std::env::var;
 
 use axum::{
     middleware::from_fn,
@@ -20,7 +21,6 @@ mod controllers;
 mod errors;
 mod middleware;
 mod models;
-mod queue;
 mod repository;
 
 use controllers::{
@@ -33,7 +33,7 @@ use controllers::{
 };
 use repository::mongodb_repo::MongoRepo;
 
-use middleware::auth::{auth, AuthState};
+use middleware::auth::{oauth_client, AuthState};
 
 
 #[tokio::main]
@@ -56,9 +56,16 @@ async fn main() {
 
     let db = MongoRepo::init();
 
+    let mongo_connection_string =
+    var("MONGO_CONNECTION_STRING").expect("failed to read mongo connection string");
+
+    let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "cluster0", "sessions").await.unwrap().ok();
+    let client = oauth_client();
+
     let auth_state = AuthState {
-        
-    }
+        store,
+        client
+    };
 
     let app = Router::new()
         .route("/", get(|| async move { "welcome to image upload api" }))
