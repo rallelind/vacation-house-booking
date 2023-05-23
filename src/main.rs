@@ -14,8 +14,6 @@ use tower_http::cors::CorsLayer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
 use aws_sdk_s3 as s3;
-use aws_sdk_sqs as sqs;
-use aws_sdk_textract as textract;
 
 mod controllers;
 mod errors;
@@ -30,6 +28,7 @@ use controllers::{
     house::create_house::create_house,
     smart_docu::create_smart_docu::create_smart_docu,
     users::{register::register_user, update_user::update_user},
+    authentication::{google_auth::google_auth, login_authorized::login_authorized}
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -39,22 +38,6 @@ use middleware::auth::{oauth_client, AuthState};
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG")
-                .unwrap_or_else(|_| "aws-s3-file-upload-api-rust=debug".into()),
-        ))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
-
-    let cors_layer = CorsLayer::permissive();
-
-    let aws_configuration = aws_config::load_from_env().await;
-
-    let aws_s3_client = s3::Client::new(&aws_configuration);
-
-    let db = MongoRepo::init();
 
     let mongo_connection_string =
     var("MONGO_CONNECTION_STRING").expect("failed to read mongo connection string");
@@ -68,19 +51,10 @@ async fn main() {
     };
 
     let app = Router::new()
-        .route("/", get(|| async move { "welcome to image upload api" }))
-        .route("/file", get(get_file))
-        .route("/file/upload", post(upload_file))
-        .route("/smartdocu", post(create_smart_docu))
-        .route("/user", post(register_user))
-        .route("/user/:user_id", patch(update_user))
-        .route("/family", post(create_family))
-        .route("/house", post(create_house))
-        .route("/house/booking", post(create_booking))
-        .route("/house/booking/post", post(create_booking_post))
-        .layer(cors_layer)
-        .layer(Extension(db))
-        .layer(Extension(aws_s3_client));
+        .route("/auth/google", get(google_auth))
+        .route("/auth/authorized", get(login_authorized))
+        .with_state(auth_state);
+
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("starting server on port: {}", addr.port());

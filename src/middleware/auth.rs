@@ -18,9 +18,22 @@ use oauth2::{
 use serde::{Deserialize, Serialize};
 use std::env;
 
+#[derive(Clone)]
 pub struct AuthState {
     pub store: MongodbSessionStore,
     pub client: BasicClient,
+}
+
+impl FromRef<AuthState> for MongodbSessionStore {
+    fn from_ref(state: &AuthState) -> Self {
+        state.store.clone()
+    }
+}
+
+impl FromRef<AuthState> for BasicClient {
+    fn from_ref(state: &AuthState) -> Self {
+        state.client.clone()
+    }
 }
 
 pub fn oauth_client() -> BasicClient {
