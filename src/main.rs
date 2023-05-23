@@ -59,7 +59,7 @@ async fn main() {
     let mongo_connection_string =
     var("MONGO_CONNECTION_STRING").expect("failed to read mongo connection string");
 
-    let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "cluster0", "sessions").await.unwrap().ok();
+    let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "cluster0", "sessions").await.unwrap();
     let client = oauth_client();
 
     let auth_state = AuthState {
