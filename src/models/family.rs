@@ -1,5 +1,5 @@
 use crate::{
-    controllers::users::update_user::PatchUser, models::users::User,
+    models::users::PatchUser, models::users::User,
     repository::mongodb_repo::MongoRepo,
 };
 use mongodb::{bson::oid::ObjectId, error::Error, results::InsertOneResult};
@@ -20,9 +20,6 @@ impl MongoRepo {
         for member in family_data.members.clone() {
             let patch_user = PatchUser {
                 family: Some(family_data.clone()),
-                email: None,
-                name: None,
-                avatar: None,
             };
 
             let member_id_string = match member.id {
