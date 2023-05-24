@@ -19,13 +19,13 @@ pub struct AuthRequest {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct User {
-    id: String,
-    picture: Option<String>,
-    name: String,
+pub struct User {
+    pub id: String,
+    pub picture: Option<String>,
+    pub name: String,
 }
 
-static COOKIE_NAME: &str = "SESSION";
+pub static COOKIE_NAME: &str = "SESSION";
 
 pub async fn login_authorized(
     Query(query): Query<AuthRequest>,
@@ -62,7 +62,7 @@ pub async fn login_authorized(
     (headers, Redirect::to("/"))
 }
 
-struct AuthRedirect;
+pub struct AuthRedirect;
 
 impl IntoResponse for AuthRedirect {
     fn into_response(self) -> Response {

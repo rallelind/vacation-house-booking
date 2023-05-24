@@ -27,7 +27,7 @@ use controllers::{
     files::{get_file::get_file, upload_file::upload_file},
     house::create_house::create_house,
     smart_docu::create_smart_docu::create_smart_docu,
-    users::{register::register_user, update_user::update_user},
+    users::{register::register_user, update_user::update_user, me::me, logout::logout},
     authentication::{google_auth::google_auth, login_authorized::login_authorized}
 };
 use repository::mongodb_repo::MongoRepo;
@@ -51,6 +51,8 @@ async fn main() {
     };
 
     let app = Router::new()
+        .route("/", get(me))
+        .route("/auth/logout", get(logout))
         .route("/auth/google", get(google_auth))
         .route("/auth/authorized", get(login_authorized))
         .with_state(auth_state);
