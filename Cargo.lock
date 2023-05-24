@@ -1737,6 +1737,7 @@ dependencies = [
  "pbkdf2 0.12.1",
  "rand_chacha",
  "rand_core",
+ "reqwest",
  "serde",
  "serde_json",
  "tokio",
