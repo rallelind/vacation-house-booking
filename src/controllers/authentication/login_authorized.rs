@@ -1,10 +1,13 @@
 use async_mongodb_session::MongodbSessionStore;
-use async_session::{Session, SessionStore};
+use async_session::{async_trait, Session, SessionStore};
 use axum::{
-    extract::{Query, State},
-    response::{IntoResponse, Redirect},
+    extract::{rejection::TypedHeaderRejectionReason, FromRef, FromRequestParts, Query, State},
+    headers::Cookie,
     http::{header::SET_COOKIE, HeaderMap},
+    response::{IntoResponse, Redirect, Response},
+    RequestPartsExt, TypedHeader,
 };
+use http::{header, request::Parts};
 use oauth2::{basic::BasicClient, reqwest::async_http_client, AuthorizationCode, TokenResponse};
 use serde::{Deserialize, Serialize};
 
@@ -57,4 +60,49 @@ pub async fn login_authorized(
     headers.insert(SET_COOKIE, cookie.parse().unwrap());
 
     (headers, Redirect::to("/"))
+}
+
+struct AuthRedirect;
+
+impl IntoResponse for AuthRedirect {
+    fn into_response(self) -> Response {
+        Redirect::temporary("/auth/google").into_response()
+    }
+}
+
+#[async_trait]
+impl<S> FromRequestParts<S> for User
+where
+    MongodbSessionStore: FromRef<S>,
+    S: Send + Sync,
+{
+    type Rejection = AuthRedirect;
+
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let store = MongodbSessionStore::from_ref(state);
+
+        let cookies =
+            parts
+                .extract::<TypedHeader<Cookie>>()
+                .await
+                .map_err(|e| match *e.name() {
+                    header::COOKIE => match e.reason() {
+                        TypedHeaderRejectionReason::Missing => AuthRedirect,
+                        _ => panic!("unexpected error getting Cookie header(s): {}", e),
+                    },
+                    _ => panic!("unexpected error getting cookies: {}", e),
+                })?;
+
+        let session_cookie = cookies.get(COOKIE_NAME).ok_or(AuthRedirect)?;
+
+        let session = store
+            .load_session(session_cookie.to_string())
+            .await
+            .unwrap()
+            .ok_or(AuthRedirect)?;
+
+            let user = session.get::<User>("user").ok_or(AuthRedirect)?;
+
+            Ok(user)    
+        }
 }
