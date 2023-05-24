@@ -23,6 +23,7 @@ pub struct User {
     pub id: String,
     pub picture: Option<String>,
     pub name: String,
+    pub email: String
 }
 
 pub static COOKIE_NAME: &str = "SESSION";
