@@ -26,9 +26,8 @@ use controllers::{
     family::create_family::create_family,
     files::{get_file::get_file, upload_file::upload_file},
     house::create_house::create_house,
-    smart_docu::create_smart_docu::create_smart_docu,
-    users::{register::register_user, update_user::update_user, me::me, logout::logout},
-    authentication::{google_auth::google_auth, login_authorized::login_authorized}
+    users::{update_user::update_user, me::me},
+    authentication::{google_auth::google_auth, login_authorized::login_authorized, logout::logout}
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -42,7 +41,7 @@ async fn main() {
     let mongo_connection_string =
     var("MONGO_CONNECTION_STRING").expect("failed to read mongo connection string");
 
-    let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "cluster0", "sessions").await.unwrap();
+    let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "house_booking", "sessions").await.unwrap();
     let client = oauth_client();
 
     let auth_state = AuthState {
