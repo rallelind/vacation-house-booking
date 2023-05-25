@@ -50,10 +50,10 @@ async fn main() {
     };
 
     let app = Router::new()
-        .route("/", get(me))
         .route("/auth/logout", get(logout))
         .route("/auth/google", get(google_auth))
         .route("/auth/authorized", get(login_authorized))
+        .route("/users/me", get(me))
         .with_state(auth_state);
 
 
