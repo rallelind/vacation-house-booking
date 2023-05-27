@@ -43,6 +43,8 @@ async fn main() {
 
     let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "house_booking", "sessions").await.unwrap();
     let client = oauth_client();
+    let db = MongoRepo::init();
+    let cors_layer = CorsLayer::permissive();
 
     let auth_state = AuthState {
         store,
@@ -54,6 +56,8 @@ async fn main() {
         .route("/auth/google", get(google_auth))
         .route("/auth/authorized", get(login_authorized))
         .route("/users/me", get(me))
+        .layer(cors_layer)
+        .layer(Extension(db))
         .with_state(auth_state);
 
 

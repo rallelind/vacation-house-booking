@@ -5,11 +5,13 @@ use axum::{
     headers::Cookie,
     http::{header::SET_COOKIE, HeaderMap},
     response::{IntoResponse, Redirect, Response},
-    RequestPartsExt, TypedHeader,
+    RequestPartsExt, TypedHeader, Extension,
 };
 use http::{header, request::Parts};
 use oauth2::{basic::BasicClient, reqwest::async_http_client, AuthorizationCode, TokenResponse};
 use serde::{Deserialize, Serialize};
+
+use crate::repository::mongodb_repo::MongoRepo;
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
@@ -19,7 +21,7 @@ pub struct AuthRequest {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct User {
+pub struct AuthedUser {
     pub id: String,
     pub picture: String,
     pub name: String,
@@ -29,6 +31,7 @@ pub struct User {
 pub static COOKIE_NAME: &str = "SESSION";
 
 pub async fn login_authorized(
+    Extension(db): Extension<MongoRepo>,
     Query(query): Query<AuthRequest>,
     State(store): State<MongodbSessionStore>,
     State(oauth_client): State<BasicClient>,
@@ -46,7 +49,7 @@ pub async fn login_authorized(
         .send()
         .await
         .unwrap()
-        .json::<User>()
+        .json::<AuthedUser>()
         .await
         .unwrap();
 
@@ -72,7 +75,7 @@ impl IntoResponse for AuthRedirect {
 }
 
 #[async_trait]
-impl<S> FromRequestParts<S> for User
+impl<S> FromRequestParts<S> for AuthedUser
 where
     MongodbSessionStore: FromRef<S>,
     S: Send + Sync,
@@ -102,7 +105,7 @@ where
             .unwrap()
             .ok_or(AuthRedirect)?;
 
-            let user = session.get::<User>("user").ok_or(AuthRedirect)?;
+            let user = session.get::<AuthedUser>("user").ok_or(AuthRedirect)?;
 
             Ok(user)    
         }

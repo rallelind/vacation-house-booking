@@ -1,10 +1,8 @@
-use axum::response::IntoResponse;
+use axum::Json;
+use serde_json::Value;
 
-use crate::controllers::authentication::login_authorized::User;
+use crate::controllers::authentication::login_authorized::AuthedUser;
 
-pub async fn me(user: User) -> impl IntoResponse {
-    format!(
-        "Welcome to the protected area :)\nHere's your info:\n{:?}",
-        user
-    )
+pub async fn me(user: AuthedUser) -> Json<Value> {
+    Json(serde_json::json!(user))
 }
