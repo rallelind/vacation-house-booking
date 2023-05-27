@@ -53,7 +53,10 @@ pub async fn login_authorized(
         .await
         .unwrap();
 
+    db.create_user(&user_data).unwrap();
+
     let mut session = Session::new();
+
     session.insert("user", &user_data).unwrap();
 
     let cookie = store.store_session(session).await.unwrap().unwrap();

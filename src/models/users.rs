@@ -1,3 +1,4 @@
+use crate::controllers::authentication::login_authorized::AuthedUser;
 use crate::models::{family::Family, house::House};
 use crate::repository::mongodb_repo::MongoRepo;
 use mongodb::{
@@ -21,14 +22,32 @@ pub struct User {
     pub family: Option<Family>,
 }
 
-
 #[derive(Deserialize)]
 pub struct PatchUser {
     pub family: Option<Family>
 }
 
 impl MongoRepo {
-    pub fn create_user(&self, user_data: User) -> Result<InsertOneResult, Error> {
+    pub fn create_user(&self, data: &AuthedUser) -> Result<InsertOneResult, Error> {
+        let AuthedUser { email, name, picture, .. } = data; 
+
+        let filter = doc! {
+            "email": email
+        };
+
+        if let Some(_) = self.user_collection.find_one(filter, None)? {
+            return Err(Error::custom("User already exists"));
+        }
+        
+        let user_data = User {
+            name: name.to_string(),
+            email: email.to_string(), 
+            avatar: Some(picture.to_string()),
+            id: None,
+            family: None,
+            house: None
+        };
+
         let user = self.user_collection.insert_one(user_data, None);
 
         match user {
