@@ -21,7 +21,7 @@ pub struct AuthRequest {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     pub id: String,
-    pub picture: Option<String>,
+    pub picture: String,
     pub name: String,
     pub email: String
 }
