@@ -53,7 +53,11 @@ pub async fn login_authorized(
         .await
         .unwrap();
 
-    db.create_user(&user_data).unwrap();
+    let create_user_result = db.create_user(&user_data);
+
+    if let Err(err) = create_user_result {
+        eprintln!("Error creating user: {:?}", err);
+    }
 
     let mut session = Session::new();
 
