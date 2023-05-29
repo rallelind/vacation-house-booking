@@ -1,8 +1,9 @@
-use crate::{
-    models::users::PatchUser, models::users::User,
-    repository::mongodb_repo::MongoRepo,
+use crate::{models::users::PatchUser, models::users::User, repository::mongodb_repo::MongoRepo};
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    error::Error,
+    results::InsertOneResult,
 };
-use mongodb::{bson::oid::ObjectId, error::Error, results::InsertOneResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -33,6 +34,23 @@ impl MongoRepo {
         match created_family {
             Ok(new_fam) => Ok(new_fam),
             Err(_) => Err(Error::custom("error creating family")),
+        }
+    }
+
+    pub fn user_part_of_family(&self, user_email: String) -> bool {
+        let filter = doc! {
+            "members": {
+                "$elemMatch": {
+                    "email": user_email
+                }
+            }
+        };
+
+        let found_document = self.family_collection.find_one(filter, None);
+
+        match found_document {
+            Ok(document) => return true,
+            Err(err) => return false,
         }
     }
 }
