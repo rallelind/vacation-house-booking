@@ -1,22 +1,8 @@
 use async_mongodb_session::MongodbSessionStore;
-use async_session::{Session, SessionStore};
 use std::env::var;
 
-use axum::{
-    async_trait,
-    extract::{FromRef, FromRequestParts, Query, State},
-    http::{header::SET_COOKIE, HeaderMap},
-    response::{IntoResponse, Redirect, Response},
-    routing::get,
-    RequestPartsExt, Router,
-};
-use http::{header, request::Parts};
-use oauth2::{
-    basic::BasicClient, reqwest::async_http_client, AuthUrl, AuthorizationCode, ClientId,
-    ClientSecret, CsrfToken, RedirectUrl, Scope, TokenResponse, TokenUrl,
-};
-use serde::{Deserialize, Serialize};
-use std::env;
+use axum::extract::FromRef;
+use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
 
 #[derive(Clone)]
 pub struct AuthState {
