@@ -22,7 +22,7 @@ pub async fn create_family(Extension(db): Extension<MongoRepo>, Json(family_payl
     }
 
     let new_family = Family {
-        famile_name: family_name,
+        family_name,
         members: family_members,
         id: None
     };

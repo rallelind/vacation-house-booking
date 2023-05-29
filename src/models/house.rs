@@ -86,10 +86,17 @@ impl MongoRepo {
         }
     }
 
-    pub fn user_part_of_house(&self, house_id: String, email: String) -> bool {
+    pub fn user_part_of_house(&self, house_id: String, user_id: String) -> bool {
+        let house_id_obj = ObjectId::parse_str(&house_id).expect("Invalid house_id");
+        let user_id_obj = ObjectId::parse_str(&user_id).expect("Invalid user_id");
+
         let filter = doc! {
-            "id": house_id,
-            "families.members.email": email
+            "_id": house_id_obj,
+            "families.members": {
+                "$elemMatch": {
+                    "_id": user_id_obj
+                }
+            }
         };
 
         let found_document = self.house_collection.find_one(filter, None);
