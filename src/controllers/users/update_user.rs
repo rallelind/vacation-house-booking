@@ -3,7 +3,6 @@ use serde_json::Value;
 
 use crate::{errors::AppError, repository::mongodb_repo::MongoRepo, models::users::PatchUser};
 
-
 pub async fn update_user(
     Extension(db): Extension<MongoRepo>,
     Path(user_id): Path<String>,
