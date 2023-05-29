@@ -16,7 +16,7 @@ use controllers::{
         google_auth::google_auth, login_authorized::login_authorized, logout::logout,
     },
     users::me::me,
-    house::create_house::create_house,
+    house::{create_house::create_house, get_house::get_house},
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -46,7 +46,7 @@ async fn main() {
     let auth_state = AuthState { store, client };
 
     let user_routes = Router::new()
-        .route("/:houseId/:userId", get(|| async {}))
+        .route("/:houseId/:userId", get(get_house))
         .layer(from_fn(validate_house_request))
         .route("/", post(create_house));
 

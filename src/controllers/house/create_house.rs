@@ -7,7 +7,7 @@ use crate::{
 };
 
 pub async fn create_house(
-    user: AuthedUser,
+    _user: AuthedUser,
     Extension(db): Extension<MongoRepo>,
     Json(payload): Json<House>,
 ) -> Result<Json<Value>, AppError> {
