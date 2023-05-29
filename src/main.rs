@@ -1,19 +1,12 @@
-use async_mongodb_session::*;
+use async_mongodb_session::MongodbSessionStore;
 use std::env::var;
 
 use axum::{
-    middleware::from_fn,
-    routing::{get, patch, post},
-    Extension, Router,
+    routing::get,
+    Extension, Router
 };
 use dotenv::dotenv;
-use rand_chacha::ChaCha8Rng;
-use rand_core::SeedableRng;
-use rand_core::{OsRng, RngCore};
 use tower_http::cors::CorsLayer;
-use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
-
-use aws_sdk_s3 as s3;
 
 mod controllers;
 mod errors;
@@ -22,34 +15,34 @@ mod models;
 mod repository;
 
 use controllers::{
-    bookings::{create_booking::create_booking, create_booking_post::create_booking_post},
-    family::create_family::create_family,
-    files::{get_file::get_file, upload_file::upload_file},
-    house::create_house::create_house,
-    users::{update_user::update_user, me::me},
-    authentication::{google_auth::google_auth, login_authorized::login_authorized, logout::logout}
+    authentication::{
+        google_auth::google_auth, login_authorized::login_authorized, logout::logout,
+    },
+    users::me::me,
 };
 use repository::mongodb_repo::MongoRepo;
 
 use middleware::auth::{oauth_client, AuthState};
-
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
 
     let mongo_connection_string =
-    var("MONGO_CONNECTION_STRING").expect("failed to read mongo connection string");
+        var("MONGO_CONNECTION_STRING").expect("failed to read mongo connection string");
 
-    let store = MongodbSessionStore::new(mongo_connection_string.as_str(), "house_booking", "sessions").await.unwrap();
+    let store = MongodbSessionStore::new(
+        mongo_connection_string.as_str(),
+        "house_booking",
+        "sessions",
+    )
+    .await
+    .unwrap();
     let client = oauth_client();
     let db = MongoRepo::init();
     let cors_layer = CorsLayer::permissive();
 
-    let auth_state = AuthState {
-        store,
-        client
-    };
+    let auth_state = AuthState { store, client };
 
     let app = Router::new()
         .route("/auth/logout", get(logout))
@@ -59,7 +52,6 @@ async fn main() {
         .layer(cors_layer)
         .layer(Extension(db))
         .with_state(auth_state);
-
 
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("starting server on port: {}", addr.port());

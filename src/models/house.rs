@@ -85,4 +85,17 @@ impl MongoRepo {
             Err(_) => Err(Error::custom("error counting documents")),
         }
     }
+
+    pub fn user_part_of_house(&self, house_id: String, email: String) -> bool {
+        let filter = doc! {
+            "families.members.email": email
+        };
+
+        let found_document = self.house_collection.find_one(filter, None);
+
+        match found_document {
+            Ok(document) => true,
+            Err(err) => false,
+        }
+    }
 }
