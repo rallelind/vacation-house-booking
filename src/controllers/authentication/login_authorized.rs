@@ -70,14 +70,14 @@ pub async fn login_authorized(
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, cookie.parse().unwrap());
 
-    (headers, Redirect::to("/"))
+    (headers, Redirect::to("http://localhost:3002/application"))
 }
 
 pub struct AuthRedirect;
 
 impl IntoResponse for AuthRedirect {
     fn into_response(self) -> Response {
-        Redirect::temporary("/auth/google").into_response()
+        Redirect::temporary("http://localhost:3002/sign-in").into_response()
     }
 }
 

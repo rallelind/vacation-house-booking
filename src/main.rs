@@ -17,6 +17,7 @@ use controllers::{
     },
     users::me::me,
     house::{create_house::create_house, get_house::get_house},
+    family::create_family::create_family
 };
 use repository::mongodb_repo::MongoRepo;
 
@@ -50,12 +51,16 @@ async fn main() {
         .layer(from_fn(validate_house_request))
         .route("/", post(create_house));
 
+    let family_routes = Router::new()
+        .route("/", post(create_family));
+
     let app = Router::new()
         .route("/auth/logout", get(logout))
         .route("/auth/google", get(google_auth))
         .route("/auth/authorized", get(login_authorized))
         .route("/users/me", get(me))
         .nest("/house", user_routes)
+        .nest("/family", family_routes)
         .layer(cors_layer)
         .layer(Extension(db))
         .with_state(auth_state);
