@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 pub struct Family {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub famile_name: String,
+    pub family_name: String,
     pub members: Vec<User>,
 }
 

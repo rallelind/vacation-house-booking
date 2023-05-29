@@ -1,11 +1,7 @@
 use async_mongodb_session::MongodbSessionStore;
 use std::env::var;
 
-use axum::{
-    routing::get,
-    Extension, Router,
-    middleware::from_fn
-};
+use axum::{middleware::from_fn, routing::{get, post}, Extension, Router};
 use dotenv::dotenv;
 use tower_http::cors::CorsLayer;
 
@@ -20,10 +16,14 @@ use controllers::{
         google_auth::google_auth, login_authorized::login_authorized, logout::logout,
     },
     users::me::me,
+    house::{create_house::create_house, get_house::get_house},
 };
 use repository::mongodb_repo::MongoRepo;
 
-use middleware::{validate_house_request::validate_house_request, auth::{oauth_client, AuthState}};
+use middleware::{
+    auth::{oauth_client, AuthState},
+    validate_house_request::validate_house_request,
+};
 
 #[tokio::main]
 async fn main() {
@@ -45,7 +45,10 @@ async fn main() {
 
     let auth_state = AuthState { store, client };
 
-    let user_routes = Router::new().route("/:houseId/:userId", get(|| async {})).layer(from_fn(validate_house_request));
+    let user_routes = Router::new()
+        .route("/:houseId/:userId", get(get_house))
+        .layer(from_fn(validate_house_request))
+        .route("/", post(create_house));
 
     let app = Router::new()
         .route("/auth/logout", get(logout))
