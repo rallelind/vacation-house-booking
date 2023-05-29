@@ -3,7 +3,8 @@ use std::env::var;
 
 use axum::{
     routing::get,
-    Extension, Router
+    Extension, Router,
+    middleware::from_fn
 };
 use dotenv::dotenv;
 use tower_http::cors::CorsLayer;
@@ -22,7 +23,7 @@ use controllers::{
 };
 use repository::mongodb_repo::MongoRepo;
 
-use middleware::auth::{oauth_client, AuthState};
+use middleware::{validate_house_request::validate_house_request, auth::{oauth_client, AuthState}};
 
 #[tokio::main]
 async fn main() {
@@ -44,11 +45,14 @@ async fn main() {
 
     let auth_state = AuthState { store, client };
 
+    let user_routes = Router::new().route("/:houseId/:userId", get(|| async {})).layer(from_fn(validate_house_request));
+
     let app = Router::new()
         .route("/auth/logout", get(logout))
         .route("/auth/google", get(google_auth))
         .route("/auth/authorized", get(login_authorized))
         .route("/users/me", get(me))
+        .nest("/house", user_routes)
         .layer(cors_layer)
         .layer(Extension(db))
         .with_state(auth_state);

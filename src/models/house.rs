@@ -1,4 +1,4 @@
-use crate::{models::family::Family, repository::mongodb_repo::MongoRepo};
+use crate::{models::family::Family, repository::mongodb_repo::MongoRepo, controllers::house};
 use mongodb::{
     bson::{doc, oid::ObjectId, DateTime},
     error::Error,
@@ -88,14 +88,23 @@ impl MongoRepo {
 
     pub fn user_part_of_house(&self, house_id: String, email: String) -> bool {
         let filter = doc! {
+            "id": house_id,
             "families.members.email": email
         };
 
         let found_document = self.house_collection.find_one(filter, None);
 
+        println!("{:?}", found_document);
+
         match found_document {
-            Ok(document) => true,
-            Err(err) => false,
+            Ok(document) => {
+                if document.is_none() {
+                    return false
+                } else {
+                    return true
+                }
+            },
+            Err(_) => false,
         }
     }
 }

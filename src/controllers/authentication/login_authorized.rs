@@ -20,7 +20,7 @@ pub struct AuthRequest {
     state: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AuthedUser {
     pub id: String,
     pub picture: String,
