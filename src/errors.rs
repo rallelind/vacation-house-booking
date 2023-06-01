@@ -13,7 +13,8 @@ pub enum AppError {
     PasswordMismatch,
     MissingUserIdForProvidedUsers,
     BookingAlreadyExists,
-    UserIsNotPartOfHouse
+    UserIsNotPartOfHouse,
+    UserNotLoggedIn
 }
 
 impl IntoResponse for AppError {
@@ -30,6 +31,7 @@ impl IntoResponse for AppError {
             Self::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "error creating token"),
             Self::UserAlreadyExist => (StatusCode::UNAUTHORIZED, "user already exists"),
             Self::UserDoesNotExist => (StatusCode::UNAUTHORIZED, "user does not exist"),
+            Self::UserNotLoggedIn => (StatusCode::UNAUTHORIZED, "you need to be logged in"),
             Self::MissingUserIdForProvidedUsers => (StatusCode::UNPROCESSABLE_ENTITY, "please provide user id's for users in payload"),
             Self::BookingAlreadyExists => (StatusCode::BAD_REQUEST, "there already is a booking made"),
             Self::UserIsNotPartOfHouse => (StatusCode::UNAUTHORIZED, "you are not part of this house")
