@@ -10,7 +10,7 @@ use crate::{models::family::Family, repository::mongodb_repo::MongoRepo};
 pub struct Invitation {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub family: Family,
+    pub family: String,
     #[serde(rename = "invitedEmail")]
     pub invited_email: String
 }

@@ -1,6 +1,6 @@
 use async_mongodb_session::MongodbSessionStore;
-use tower::ServiceBuilder;
 use std::env::var;
+use tower::ServiceBuilder;
 
 use axum::{
     http::{HeaderValue, Method},
@@ -23,6 +23,7 @@ use controllers::{
     },
     family::create_family::create_family,
     house::{create_house::create_house, get_house::get_house},
+    invitations::send_invitation::send_invitation,
     users::me::me,
 };
 use repository::mongodb_repo::MongoRepo;
@@ -48,32 +49,37 @@ async fn main() {
     .unwrap();
     let client = oauth_client();
     let db = MongoRepo::init();
-    
 
     let cors = CorsLayer::very_permissive();
 
     let auth_state = AuthState { store, client };
 
-    /*let user_routes = Router::new()
+    let user_routes = Router::new()
         .route("/:houseId/:userId", get(get_house))
         .layer(from_fn(validate_house_request))
         .route("/", post(create_house));
 
-    let family_routes = Router::new().route("/", post(create_family));*/
+    let family_routes = Router::new().route("/", post(create_family));
 
     let app = Router::new()
         .route("/auth/logout", get(logout))
         .route("/auth/google", get(google_auth))
         .route("/auth/authorized", get(login_authorized))
+        .route("/users/invitation", post(send_invitation))
         .route("/users/me", get(me))
-        //.nest("/house", user_routes)
-        //.nest("/family", family_routes)
-        .layer(ServiceBuilder::new().layer(cors).layer(Extension(db)).into_inner())
+        .nest("/house", user_routes)
+        .nest("/family", family_routes)
+        .layer(
+            ServiceBuilder::new()
+                .layer(cors)
+                .layer(Extension(db))
+                .into_inner(),
+        )
         .with_state(auth_state);
 
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::debug!("starting server on port: {}", addr.port());
-    
+
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
