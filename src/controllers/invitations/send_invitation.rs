@@ -40,7 +40,7 @@ pub async fn send_invitation(
                 "to": [{
                     "email": recipient.email,
                     "name": recipient.name
-                }]
+                }],
             }],
             "from": {
                 "email": sender.email,
@@ -60,8 +60,6 @@ pub async fn send_invitation(
         }
     );
 
-    println!("{:?}", body);
-
     let response = Client::new()
         .post("https://api.sendgrid.com/v3/mail/send")
         .json(&body)
@@ -75,8 +73,6 @@ pub async fn send_invitation(
 
     match response {
         Ok(res) => {
-
-            println!("{:?}", res);
 
             if !res.status().is_success() {
                 return Err(AppError::InternalServerError)
