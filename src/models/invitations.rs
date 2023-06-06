@@ -4,7 +4,7 @@ use mongodb::{
     results::InsertOneResult,
 };use serde::{Deserialize, Serialize};
 
-use crate::{models::family::Family, repository::mongodb_repo::MongoRepo};
+use crate::repository::mongodb_repo::MongoRepo;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Invitation {

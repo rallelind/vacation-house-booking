@@ -1,8 +1,8 @@
 use crate::{models::users::PatchUser, models::users::User, repository::mongodb_repo::MongoRepo};
 use mongodb::{
-    bson::{doc, oid::ObjectId},
+    bson::{doc, oid::ObjectId, to_bson},
     error::Error,
-    results::InsertOneResult,
+    results::{InsertOneResult, UpdateResult},
 };
 use serde::{Deserialize, Serialize};
 
@@ -52,5 +52,34 @@ impl MongoRepo {
             Ok(document) => return true,
             Err(err) => return false,
         }
+    }
+
+    pub fn add_user_to_family(&self, user_email: String, family_name: String) -> Result<UpdateResult, Error> {
+        
+        let filter = doc! {
+            "email": user_email
+        };
+
+        let found_user = self.user_collection.find_one(filter, None);
+
+        match found_user {
+            Ok(user) => {
+                if let Some(new_user) = user {
+                    let query = doc! { "family_name": family_name };
+                    let update = doc! { "$push": { "members": to_bson(&new_user).unwrap() } };
+
+                    let added_user = self.family_collection.update_one(query, update, None);
+
+                    match added_user {
+                        Ok(added_user_to_family) => Ok(added_user_to_family),
+                        Err(_) => Err(Error::custom("error adding user to family")),
+                    }
+                } else {
+                    return Err(Error::custom("error adding user to family"));
+                }
+            },
+            Err(_) => Err(Error::custom("error adding user to family")),
+        }
+
     }
 }

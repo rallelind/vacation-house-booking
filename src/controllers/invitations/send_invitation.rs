@@ -16,7 +16,8 @@ pub struct Sender {
 pub struct Recipient {
     email: String,
     #[serde(rename = "familyName")]
-    family_name: String
+    family_name: String,
+    name: String
 }
 
 #[derive(Deserialize)]
@@ -34,24 +35,29 @@ pub async fn send_invitation(
     let EmailPayload { sender, recipient } = payload;
 
     let body = json!(
-       {
-           "personalizations": [{
-               "from": {
-                   "email": sender.email,
-                   "name": sender.name
-               },
-               "to": {
-                   "email": recipient.email
-               },
-               "subject": "Invitation to join havklitvej 60",
-               "content": [
-                   {
-                       "type": "text/html",
-                       "value": "Invitation to join the vacation house havklitvej 60"
-                   }
-               ]
-           }]
-       }
+        {
+            "personalizations": [{
+                "to": [{
+                    "email": recipient.email,
+                    "name": recipient.name
+                }],
+            }],
+            "from": {
+                "email": sender.email,
+                "name": sender.name
+            },
+            "subject": "Let's Send an Email With Rust and SendGrid",
+            "content": [
+                {
+                    "type": "text/plain",
+                    "value": "Here is your AMAZING email!"
+                },
+                {
+                    "type": "text/html",
+                    "value": "Here is your <strong>AMAZING</strong> email!"
+                },
+            ]
+        }
     );
 
     let response = Client::new()
@@ -66,7 +72,11 @@ pub async fn send_invitation(
         .await;
 
     match response {
-        Ok(_res) => {
+        Ok(res) => {
+
+            if !res.status().is_success() {
+                return Err(AppError::InternalServerError)
+            }
 
             let new_invitation = Invitation {
                 family: recipient.family_name,
