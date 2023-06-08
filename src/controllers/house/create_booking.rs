@@ -1,9 +1,13 @@
 use axum::{Extension, Json};
 use serde_json::Value;
 
-use crate::{errors::AppError, models::house::Booking, repository::mongodb_repo::MongoRepo};
+use crate::{
+    controllers::authentication::login_authorized::AuthedUser, errors::AppError,
+    models::house::Booking, repository::mongodb_repo::MongoRepo,
+};
 
 pub async fn create_booking(
+    _user: AuthedUser,
     Extension(db): Extension<MongoRepo>,
     Json(payload): Json<Booking>,
 ) -> Result<Json<Value>, AppError> {
