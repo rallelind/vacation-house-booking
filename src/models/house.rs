@@ -14,6 +14,7 @@ pub struct House {
     pub address: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bookings: Option<Vec<Booking>>,
+    pub admin_needs_to_approve: bool
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -26,6 +27,7 @@ pub struct Booking {
     pub house: House,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub posts: Option<Vec<BookingPost>>,
+    pub approved: bool
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -34,7 +36,7 @@ pub struct BookingPost {
     pub id: Option<ObjectId>,
     pub pictures: Vec<String>,
     pub description: String,
-    pub booking: Booking,
+    pub booking: Booking
 }
 
 impl MongoRepo {
@@ -47,7 +49,14 @@ impl MongoRepo {
         }
     }
 
-    pub fn create_booking(&self, new_booking: Booking) -> Result<InsertOneResult, Error> {
+    pub fn create_booking(&self, mut new_booking: Booking) -> Result<InsertOneResult, Error> {
+
+        if new_booking.house.admin_needs_to_approve {
+            new_booking.approved = false
+        } else {
+            new_booking.approved = true
+        }
+
         let created_booking = self.booking_collection.insert_one(new_booking, None);
 
         match created_booking {
