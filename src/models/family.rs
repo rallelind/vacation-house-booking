@@ -55,6 +55,12 @@ impl MongoRepo {
     }
 
     pub fn add_user_to_family(&self, user_email: String, family_name: String) -> Result<UpdateResult, Error> {
+
+        let user_part_of_family = self.user_part_of_family(user_email.clone());
+
+        if user_part_of_family {
+            return Err(Error::custom("the user is already part of the family")); 
+        }
         
         let filter = doc! {
             "email": user_email
