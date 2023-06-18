@@ -1,6 +1,6 @@
 use crate::{models::users::PatchUser, models::users::User, repository::mongodb_repo::MongoRepo};
 use mongodb::{
-    bson::{doc, oid::ObjectId, to_bson},
+    bson::{doc, oid::ObjectId, to_bson, Document},
     error::Error,
     results::{InsertOneResult, UpdateResult},
 };
@@ -15,6 +15,23 @@ pub struct Family {
 }
 
 impl MongoRepo {
+    pub fn get_family(&self, user_email: String) -> Result<Option<Family>, Error> {
+        let filter = doc! {
+            "members": {
+                "$elemMatch": {
+                    "email": user_email
+                }
+            }
+        };
+
+        let found_document = self.family_collection.find_one(filter, None);
+        
+        match found_document {
+            Ok(document) => Ok(document),
+            Err(_) => Err(Error::custom("error getting family")),
+        }
+    }
+
     pub fn create_family(&self, family_data: Family) -> Result<InsertOneResult, Error> {
         let created_family = self.family_collection.insert_one(family_data.clone(), None);
 
@@ -38,15 +55,8 @@ impl MongoRepo {
     }
 
     pub fn user_part_of_family(&self, user_email: String) -> bool {
-        let filter = doc! {
-            "members": {
-                "$elemMatch": {
-                    "email": user_email
-                }
-            }
-        };
 
-        let found_document = self.family_collection.find_one(filter, None);
+        let found_document = self.get_family(user_email);
 
         match found_document {
             Ok(document) => return true,

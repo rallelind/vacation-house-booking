@@ -21,8 +21,8 @@ use controllers::{
     authentication::{
         google_auth::google_auth, login_authorized::login_authorized, logout::logout,
     },
-    family::create_family::create_family,
-    house::{create_house::create_house, get_house::get_house, create_booking::create_booking},
+    family::{create_family::create_family, get_family::get_family},
+    house::{create_booking::create_booking, create_house::create_house, get_house::get_house},
     invitations::send_invitation::send_invitation,
     users::me::me,
 };
@@ -60,7 +60,9 @@ async fn main() {
         .layer(from_fn(validate_house_request))
         .route("/", post(create_house));
 
-    let family_routes = Router::new().route("/", post(create_family));
+    let family_routes = Router::new()
+        .route("/", post(create_family))
+        .route("/", get(get_family));
 
     let app = Router::new()
         .route("/auth/logout", get(logout))

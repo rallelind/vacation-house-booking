@@ -14,7 +14,8 @@ pub enum AppError {
     MissingUserIdForProvidedUsers,
     BookingAlreadyExists,
     UserIsNotPartOfHouse,
-    UserNotLoggedIn
+    UserNotLoggedIn,
+    NotPartOfFamily,
 }
 
 impl IntoResponse for AppError {
@@ -34,7 +35,8 @@ impl IntoResponse for AppError {
             Self::UserNotLoggedIn => (StatusCode::UNAUTHORIZED, "you need to be logged in"),
             Self::MissingUserIdForProvidedUsers => (StatusCode::UNPROCESSABLE_ENTITY, "please provide user id's for users in payload"),
             Self::BookingAlreadyExists => (StatusCode::BAD_REQUEST, "there already is a booking made"),
-            Self::UserIsNotPartOfHouse => (StatusCode::UNAUTHORIZED, "you are not part of this house")
+            Self::UserIsNotPartOfHouse => (StatusCode::UNAUTHORIZED, "you are not part of this house"),
+            Self::NotPartOfFamily => (StatusCode::UNAUTHORIZED, "you are not part of a family")
         };
         (status, Json(json!({ "error": err_msg }))).into_response()
     }
