@@ -1,4 +1,7 @@
-use crate::{models::family::Family, repository::mongodb_repo::MongoRepo};
+use crate::{
+    models::{family::Family, users::User},
+    repository::mongodb_repo::MongoRepo,
+};
 use mongodb::{
     bson::{doc, oid::ObjectId, DateTime},
     error::Error,
@@ -14,7 +17,8 @@ pub struct House {
     pub address: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bookings: Option<Vec<Booking>>,
-    pub admin_needs_to_approve: bool
+    pub admin_needs_to_approve: bool,
+    pub house_admins: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -27,7 +31,7 @@ pub struct Booking {
     pub house: House,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub posts: Option<Vec<BookingPost>>,
-    pub approved: bool
+    pub approved: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -36,7 +40,7 @@ pub struct BookingPost {
     pub id: Option<ObjectId>,
     pub pictures: Vec<String>,
     pub description: String,
-    pub booking: Booking
+    pub booking: Booking,
 }
 
 impl MongoRepo {
@@ -49,8 +53,29 @@ impl MongoRepo {
         }
     }
 
-    pub fn create_booking(&self, mut new_booking: Booking) -> Result<InsertOneResult, Error> {
+    pub fn user_is_house_admin(&self, email: String, id: String) -> bool {
+        let house_id_obj = ObjectId::parse_str(&id).expect("Invalid house_id");
 
+        let filter = doc! {
+            "_id": house_id_obj,
+            "house_admins": email
+        };
+
+        let user_is_admin = self.house_collection.find_one(filter, None);
+
+        match user_is_admin {
+            Ok(user_admin) => {
+                if let Some(_) = user_admin {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            Err(_) => return false,
+        }
+    }
+
+    pub fn create_booking(&self, mut new_booking: Booking) -> Result<InsertOneResult, Error> {
         if new_booking.house.admin_needs_to_approve {
             new_booking.approved = false
         } else {
@@ -96,7 +121,6 @@ impl MongoRepo {
     }
 
     pub fn get_house(&self, house_id: String) -> Result<Option<House>, Error> {
-
         let house_id_obj = ObjectId::parse_str(&house_id).expect("Invalid house_id");
 
         let filter = doc! {
@@ -107,9 +131,8 @@ impl MongoRepo {
 
         match found_house {
             Ok(document) => Ok(document),
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
-
     }
 
     pub fn user_part_of_house(&self, house_id: String, user_id: String) -> bool {
@@ -132,11 +155,11 @@ impl MongoRepo {
         match found_document {
             Ok(document) => {
                 if document.is_none() {
-                    return false
+                    return false;
                 } else {
-                    return true
+                    return true;
                 }
-            },
+            }
             Err(_) => false,
         }
     }

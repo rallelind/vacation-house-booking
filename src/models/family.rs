@@ -1,6 +1,6 @@
 use crate::{models::users::PatchUser, models::users::User, repository::mongodb_repo::MongoRepo};
 use mongodb::{
-    bson::{doc, oid::ObjectId, to_bson, Document},
+    bson::{doc, oid::ObjectId, to_bson},
     error::Error,
     results::{InsertOneResult, UpdateResult},
 };

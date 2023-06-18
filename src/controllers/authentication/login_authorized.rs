@@ -5,13 +5,13 @@ use axum::{
     headers::Cookie,
     http::{header::SET_COOKIE, HeaderMap},
     response::{IntoResponse, Redirect, Response},
-    RequestPartsExt, TypedHeader, Extension,
+    Extension, RequestPartsExt, TypedHeader,
 };
 use http::{header, request::Parts};
 use oauth2::{basic::BasicClient, reqwest::async_http_client, AuthorizationCode, TokenResponse};
 use serde::{Deserialize, Serialize};
 
-use crate::{repository::mongodb_repo::MongoRepo, errors::AppError};
+use crate::{errors::AppError, repository::mongodb_repo::MongoRepo};
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
@@ -25,7 +25,8 @@ pub struct AuthedUser {
     pub id: String,
     pub picture: String,
     pub name: String,
-    pub email: String
+    pub email: String,
+    pub house_admin: Option<bool>,
 }
 
 pub static COOKIE_NAME: &str = "SESSION";
@@ -43,7 +44,7 @@ pub async fn login_authorized(
         .unwrap();
 
     let client = reqwest::Client::new();
-    let user_data = client
+    let mut user_data = client
         .get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
         .bearer_auth(token.access_token().secret())
         .send()
@@ -59,6 +60,21 @@ pub async fn login_authorized(
         eprintln!("Error creating user: {:?}", err);
     }
 
+    let found_user = db.get_user(user_data.email.clone());
+
+    match found_user {
+        Ok(found_user_data) => {
+            if let Some(data) = found_user_data {
+                let is_house_admin =
+                    db.user_is_house_admin(data.email, "648f0eafac0987403f3be00d".into());
+
+                user_data.house_admin = Some(is_house_admin);
+            }
+
+        }
+        Err(_) => eprintln!("No user found"),
+    }
+
     let mut session = Session::new();
 
     session.insert("user", &user_data).unwrap();
@@ -72,8 +88,6 @@ pub async fn login_authorized(
 
     (headers, Redirect::to("http://localhost:3002/application"))
 }
-
-
 
 #[async_trait]
 impl<S> FromRequestParts<S> for AuthedUser
@@ -106,8 +120,10 @@ where
             .unwrap()
             .ok_or(AppError::UserNotLoggedIn)?;
 
-            let user = session.get::<AuthedUser>("user").ok_or(AppError::UserNotLoggedIn)?;
+        let user = session
+            .get::<AuthedUser>("user")
+            .ok_or(AppError::UserNotLoggedIn)?;
 
-            Ok(user)    
-        }
+        Ok(user)
+    }
 }

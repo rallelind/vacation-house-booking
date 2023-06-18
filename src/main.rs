@@ -3,7 +3,6 @@ use std::env::var;
 use tower::ServiceBuilder;
 
 use axum::{
-    http::{HeaderValue, Method},
     middleware::from_fn,
     routing::{get, post},
     Extension, Router,
